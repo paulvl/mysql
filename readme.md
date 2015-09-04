@@ -13,7 +13,7 @@ You can run:
 Or edit your project's composer.json file to require paulvl/json-api.
 ```
     "require-dev": {
-        "paulvl/mysql": "dev-master"
+        "paulvl/mysql": "^1.0"
     }
 ```
 Next, update Composer from the Terminal:

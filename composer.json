@@ -1,0 +1,21 @@
+{
+    "name": "paulvl/mysql",
+    "description": "Mysql backups fro laravel 5.1",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Paul Vidal",
+            "email": "paul.vidal.lujan@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.5.9",
+        "laravel/framework": "5.1.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "PaulVL\\Mysql\\": "src/"
+        }
+    }
+}

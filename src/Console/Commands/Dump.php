@@ -3,6 +3,7 @@
 namespace PaulVL\Mysql\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class Dump extends Command
 {
@@ -28,16 +29,39 @@ class Dump extends Command
      */
     public function handle()
     {
-        $host       = env('DB_HOST');
-        $database   = env('DB_DATABASE');
-        $username   = env('DB_USERNAME');
-        $password   = env('DB_PASSWORD');
+        $host           = config('database.connections.mysql.host');
+        $database       = config('database.connections.mysql.database');
+        $username       = config('database.connections.mysql.username');
+        $password       = config('database.connections.mysql.password');
+
+        $backupPath    = config('backup.path');
+
+        $cloudStorage    = config('backup.cloud-storage');
+        $cloudDisk    = config('backup.cloud-disk');
+        $cloudPath    = config('backup.cloud-path');
+        $keepLocal    = config('backup.keep-local');
+
 
         $path       = config('backup.path');
-        $filename   = empty(trim($this->argument('filename'))) ? \Carbon\Carbon::now()->format('YmdHis') : trim($this->argument('filename'));
+        $filename   = $database . '_' . empty(trim($this->argument('filename'))) ? \Carbon\Carbon::now()->format('YmdHis') : trim($this->argument('filename'));
 
-        $command = "mysqldump -e -f -h $host -u $username -p$password $database > /home/paulvl/Backups/$filename.sql";
-        exec($command);
+        $mysqldumpCommand = "mysqldump -e -f -h $host -u $username -p$password $database > $backupPath$filename.sql";
+        exec($mysqldumpCommand);
+
         $this->info('Backup completed!');
+
+        if($cloudStorage)
+        {
+            $fileContents = file_get_contents("$backupPath$filename.sql");
+            Storage::disk($cloudDisk)->put("$cloudPath$filename.sql", $fileContents);
+
+            if(!$keepLocal)
+            {
+                $rmCommand = "rm $backupPath$filename.sql";
+                exec($rmCommand);
+            }
+
+            $this->info('Backup uploaded to cloud storage!');
+        }
     }
 }
